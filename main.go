@@ -406,6 +406,14 @@ func main() {
 		panic(err)
 	}
 
+	totalFunctions := 0
+	for _, namespace := range functionNamespaces {
+		functions, ok := nsFunctions[namespace]
+		if ok {
+			totalFunctions += len(functions)
+		}
+	}
+
 	fmt.Printf("\nGateway\n\n")
 
 	fmt.Printf("gateway image: %s\n", gatewayImage)
@@ -498,8 +506,9 @@ Features detected:
 
 - Kubernetes version: %s
 - Asynchronous concurrency (cluster): %d
+- Total functions: %d
 `, k8sVer,
-		(queueWorkerReplicas * queueWorkerMaxInflight))
+		(queueWorkerReplicas * queueWorkerMaxInflight), totalFunctions)
 
 	fmt.Printf("\n")
 
@@ -507,9 +516,7 @@ Features detected:
 		fmt.Printf("\nFunctions in (%s):\n\n", namespace)
 		functions, ok := nsFunctions[namespace]
 		if ok {
-			if len(functions) == 0 {
-				fmt.Printf("None detected\n")
-			}
+			fmt.Printf("- Functions detected: %d\n\n", len(functions))
 
 			for _, fn := range functions {
 				printFunction(fn, len(autoscalerImage) > 0)
